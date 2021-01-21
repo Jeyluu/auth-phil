@@ -2,10 +2,22 @@ const mongoose = require('mongoose')
 const bcrypt = require('bcrypt')
 
 const userSchema = new mongoose.Schema ({
+// on met dans un objet les caractréristiques souhaitées
+    name:{
+        type: String,
+        required: true,
+    },
 
-    name:String,
-    email:String,
-    password:String,
+    // unique = pas possible d'enregistrer deux fois la même adresse
+    email:{
+        type: String,
+        required: true,
+        unique: true
+    },
+    password:{
+        type: String,
+        required: true,
+    },
     
 });
 

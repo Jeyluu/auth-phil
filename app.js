@@ -5,7 +5,8 @@ const mongoose = require('mongoose');
 const bodyParser = require('body-parser')
 const { allowInsecurePrototypeAccess } = require('@handlebars/allow-prototype-access');
 const fileupload = require('express-fileupload');
-const path = require('path');
+const expressSession = require('express-session')
+
 
 //controller
 //article
@@ -17,9 +18,17 @@ const homePage = require('./controllers/homepage')
 //user
 const userCreate = require('./controllers/userCreate')
 const userRegister = require('./controllers/userRegister')
-
+const userLogin = require('./controllers/userLogin')
+const userLoginAuth = require('./controllers/userLoginAuth')
 
 const app = express();
+
+
+app.use(expressSession({
+    secret: 'securite',
+    name:'biscuit'
+}))
+
 
 app.use(express.static('public'));
 app.use(bodyParser.json());
@@ -53,6 +62,8 @@ app.post("/articles/post",articlePostController);
 //users
 app.get('/user/create', userCreate)
 app.post('/user/register', userRegister)
+app.get('/user/login', userLogin)
+app.post('/user/loginAuth', userLoginAuth)
 
 //contact 
 app.get('/contact', (req, res) => {

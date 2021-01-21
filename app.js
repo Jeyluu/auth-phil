@@ -7,6 +7,18 @@ const { allowInsecurePrototypeAccess } = require('@handlebars/allow-prototype-ac
 const fileupload = require('express-fileupload');
 const path = require('path');
 
+//controller
+//article
+const articleSingleController = require('./controllers/articleSingle')
+const articleAddController = require('./controllers/articleAdd')
+const articlePostController = require('./controllers/articlePost')
+const homePage = require('./controllers/homepage')
+
+//user
+const userCreate = require('./controllers/userCreate')
+const userRegister = require('./controllers/userRegister')
+
+
 const app = express();
 
 app.use(express.static('public'));
@@ -22,61 +34,33 @@ mongoose.connect('mongodb://localhost:27017/blog', {
     useCreateIndex: true
 })
 
-
-
-//Post
-const Post = require('./models/article')
-
 //handlerbars
 app.engine('hbs', exphbs({ defaultLayout: 'main', extname: "hbs", handlebars: allowInsecurePrototypeAccess(Handlebars) }));
 app.set('view engine', 'hbs');
 
-//Route
-app.get('/', async (req, res) => {
+//Middleware
+const articleValidPost = require('./middleware/articleValidPost')
+app.use("/articles/post",articleValidPost)
 
-    const posts = await Post.find({})
+app.get('/', homePage)
 
-    res.render('index', { posts })
-})
 
+//articles
+app.get("/articles/add",articleAddController)
+app.get('/articles/:id', articleSingleController)
+app.post("/articles/post",articlePostController);
+
+//users
+app.get('/user/create', userCreate)
+app.post('/user/register', userRegister)
+
+//contact 
 app.get('/contact', (req, res) => {
     res.render('contact')
 })
 
-//articles
 
-app.get('/articles/:id', async (req, res) => {
 
-    const article = await Post.findById(req.params.id)
-
-    res.render("articles", { article })
-})
-
-app.get("/article/add", (req, res) => {
-    res.render("article/add")
-})
-
-//post
-
-app.post("/articles/post", (req, res) => {
-
-    const { image } = req.files;
-
-    const uploadFile = path.resolve(__dirname, 'public/articles', image.name);
-
-    image.mv(uploadFile, (error) => {
-        Post.create(
-            {
-                ...req.body,
-                image : `/articles/${image.name}`
-            }
-
-            , (err, post) => {
-            res.redirect('/')
-        })
-    })
-
-});
 
 app.listen(2500, () => {
     console.log('Server ok sur pour 2500')
